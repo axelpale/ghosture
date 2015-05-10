@@ -1,0 +1,40 @@
+{
+  "name": "ghosture",
+  "version": "0.1.0",
+  "description": "Simulate touch gestures in your unit tests.",
+  "keywords": [
+    "testing",
+    "touch"
+  ],
+  "homepage": "https://github.com/axelpale/ghosture",
+  "main": "index.js",
+  "author": {
+    "name": "Akseli Palen",
+    "email": "akseli.palen@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/axelpale/ghosture.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "jshint": "latest",
+    "mocha": "^2.2.4",
+    "should": "^6.0.1",
+    "browserify": "^10.1.0",
+    "mocha-phantomjs": "^3.5.3",
+    "phantomjs": "^1.9.16",
+    "chai": "latest",
+    "chai-jquery": "^2.0.0",
+    "jquery": "^2.1.4"
+  },
+  "scripts": {
+    "start": "python -m SimpleHTTPServer",
+    "build": "npm run test:lint && npm run build:bundle && npm run test:headless",
+    "build:bundle": "browserify index.js --debug --standalone ghosture --outfile ghosture.js",
+    "test:lint": "jshint index.js test/*.js",
+    "test:headless": "mocha-phantomjs test/testrunner.html"
+  }
+}
