@@ -2,39 +2,43 @@
 
 describe('ghosture', function () {
 
-  it('should be a function', function () {
-    ghosture.should.be.a.Function;
+  it('should have api', function () {
+    ghosture.should.have.keys('start');
   });
 
-  describe('start instance', function () {
+  describe('start', function () {
 
-    it('should start and end and have api', function (done) {
-      ghosture(function (start) {
-        start.should.be.a.Function;
+    var el;
 
-        var s = start(0, 0);
-        s.should.have.keys('cancel', 'during', 'end',
-          'moveBy', 'moveTo', 'then', 'wait');
-        s.end();
-      }, done);
+    beforeEach(function () {
+      $('#sandbox').empty();
+      $('#sandbox').append('<img src="assets/lego.png" width="256" height="256">');
+      el = $('#sandbox img')[0];
     });
 
-    describe('#then', function () {
-      it('should exec', function (done) {
-        var i = 0;
-        ghosture(function (start) {
-          start(0, 0)
-            .then(function () {
-              i += 1;
-            })
-            .end();
-        }, function almostDone() {
-          i.should.equal(1);
-          done();
-        });
+    it('& end should cause tap', function (done) {
+      var mc = new Hammer(el);
+      mc.on('tap', function () {
+        done();
       });
+
+      ghosture.start(50, 50)
+        .hold(20)
+        .end()
+        .run();
     });
 
+    it('& move should cause panend', function (done) {
+      var mc = new Hammer(el);
+      mc.on('panend', function () {
+        done();
+      });
+
+      ghosture.start(100, 100)
+        .moveBy(300, 0, 50)
+        .end()
+        .run();
+    });
 
   });
 });

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ghosture / Playground</title>
+</head>
+<body>
+  <img id="lego" src="assets/lego.png">
+  <script src="../node_modules/hammerjs/hammer.js"></script>
+  <script src="../node_modules/movejs/move.js"></script>
+  <script src="../ghosture.js"></script>
+  <script>
+    var lego = document.getElementById('lego');
+
+    var mc = new Hammer(lego);
+    var mv = move(lego);
+
+    var px = 0;
+    var py = 0;
+    mc.on('pan', function (ev) {
+      var dx = ev.deltaX - px;
+      var dy = ev.deltaY - py;
+      px = ev.deltaX;
+      py = ev.deltaY;
+      mv.matrix(1, 0, 0, 1, dx, dy).duration('0s').end();
+    });
+    mc.on('panend pancancel', function (ev) {
+      px = 0;
+      py = 0;
+    });
+
+    mc.on('tap', function (ev) {
+      console.log('wow');
+    });
+
+    mc.on('hammer.input', function (ev) {
+      console.log('hammer.input', ev.srcEvent);
+    });
+
+    var tap = function (x, y) {
+      var g = ghosture.start(x, y)
+        .wait(100)
+        .end();
+      g.run();
+    };
+  </script>
+</body>
+</html>

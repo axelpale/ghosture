@@ -18,23 +18,26 @@
   },
   "license": "MIT",
   "dependencies": {
+    "seqid": "^1.0.1"
   },
   "devDependencies": {
     "jshint": "latest",
-    "mocha": "^2.2.4",
+    "mocha": "^2.2.5",
     "should": "^6.0.1",
-    "browserify": "^10.1.0",
+    "browserify": "^10.2.0",
     "mocha-phantomjs": "^3.5.3",
     "phantomjs": "^1.9.16",
     "chai": "latest",
     "chai-jquery": "^2.0.0",
-    "jquery": "^2.1.4"
+    "jquery": "^2.1.4",
+    "hammerjs": "^2.0.4",
+    "movejs": "axelpale/move.js"
   },
   "scripts": {
     "start": "python -m SimpleHTTPServer",
     "build": "npm run test:lint && npm run build:bundle && npm run test:headless",
     "build:bundle": "browserify index.js --debug --standalone ghosture --outfile ghosture.js",
-    "test:lint": "jshint index.js test/*.js",
+    "test:lint": "jshint index.js lib/**.js test/**.js",
     "test:headless": "mocha-phantomjs test/testrunner.html"
   }
 }
