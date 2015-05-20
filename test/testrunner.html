@@ -7,7 +7,6 @@
   <body>
     <div id="sandbox"></div>
     <div id="mocha"></div>
-    <script src="../node_modules/hammerjs/hammer.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/chai/chai.js"></script>
     <script src="../node_modules/jquery/dist/jquery.js"></script>
@@ -18,6 +17,8 @@
       var should = chai.should(); // 'var' important, otherwise RangeError
     </script>
     <script src="../ghosture.js"></script>
+    <!-- We must include ghosture before hammer to fake touch support -->
+    <script src="../node_modules/hammerjs/hammer.js"></script>
     <script src="ghosture.phantom.js"></script>
     <script>
       if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
