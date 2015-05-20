@@ -1,13 +1,18 @@
 var GTouchEmitter = require('./lib/GTouchEmitter');
-//var touchSupport = require('./lib/touchSupport');
+var touchSupport = require('./lib/touchSupport');
+var tween = require('component-tween');
+var raf = require('raf'); // requestAnimationFrame polyfill
 
 var emit = new GTouchEmitter();
 
 // Add ontouchstart and similar document attributes to fake
 // touch support detection in libraries like Modernizr and Hammer.
-//if (!touchSupport.hasTouchSupport()) {
-//  touchSupport.fakeTouchSupport();
-//}
+if (!touchSupport.hasTouchSupport()) {
+  touchSupport.fakeTouchSupport();
+}
+
+// Default callback
+var noop = function () {};
 
 var Gesture = function (x, y) {
 
@@ -66,7 +71,7 @@ var Gesture = function (x, y) {
     return this;
   };
 
-  this.moveBy = function (arg1, arg2, arg3) {
+  this.moveBy = function (arg1, arg2, arg3, arg4) {
 
     var dx;
     var dy;
@@ -77,20 +82,36 @@ var Gesture = function (x, y) {
     dx = arg1;
     dy = arg2;
     duration = arg3;
-    ease = 'in-out'; // does not affect anything
+    ease = (typeof arg4 === 'undefined') ? 'linear' : arg4;
 
     sequence.push(function moveBy(next) {
-      setTimeout(function () {
-        x += dx;
-        y += dy;
-        emit.touchmove(id, x, y);
+      var animate;
+
+      var tw = tween({x: x, y: y})
+        .ease(ease)
+        .to({x: x + dx, y: y + dy})
+        .duration(duration);
+
+      tw.update(function (o) {
+        emit.touchmove(id, o.x, o.y);
+      });
+
+      tw.on('end', function () {
+        animate = function () {};
         next();
-      }, duration);
+      });
+
+      animate = function () {
+        raf(animate);
+        tw.update();
+      };
+      animate();
     });
+
     return this;
   };
 
-  this.moveTo = function (arg1, arg2, arg3) {
+  this.moveTo = function (arg1, arg2, arg3, arg4) {
 
     var tx;
     var ty;
@@ -101,17 +122,9 @@ var Gesture = function (x, y) {
     tx = arg1;
     ty = arg2;
     duration = arg3;
-    ease = 'in-out'; // does not affect anything
+    ease = (typeof arg4 === 'undefined') ? 'linear' : arg4;
 
-    sequence.push(function moveTo(next) {
-      setTimeout(function () {
-        x = tx;
-        y = ty;
-        emit.touchmove(id, x, y);
-        next();
-      }, duration);
-    });
-    return this;
+    return this.moveBy(tx - x, ty - y, duration, ease);
   };
 
   this.run = function (finalCallback) {

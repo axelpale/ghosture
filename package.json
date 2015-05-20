@@ -18,7 +18,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "seqid": "^1.0.1"
+    "seqid": "^1.0.1",
+    "raf": "^2.0.4",
+    "component-tween": "^1.2.0"
   },
   "devDependencies": {
     "jshint": "latest",
