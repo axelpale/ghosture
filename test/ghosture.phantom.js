@@ -2,8 +2,13 @@
 
 describe('ghosture', function () {
 
+  afterEach(function () {
+    // Without this one failed test might make all remaining tests to fail.
+    ghosture.endTouches();
+  });
+
   it('should have api', function () {
-    ghosture.should.have.keys('start');
+    ghosture.should.have.keys('start', 'numTouches', 'endTouches');
   });
 
   describe('start', function () {
@@ -89,14 +94,37 @@ describe('ghosture', function () {
         .end(function () {
           // Is not run. '.then' should be used.
           i += 1;
-          (false).should.be.True;
+          should(true).not.be.ok;
         })
         .run(function () {
           i.should.equal(2);
           done();
         });
-      (typeof result === 'undefined').should.be.True;
+      (typeof result).should.equal('object');
     });
 
+  });
+
+  describe('numTouches', function () {
+
+    it('should count number of ongoing touches', function () {
+      ghosture.numTouches().should.equal(0);
+      var a = ghosture.start(1, 1).run();
+      ghosture.numTouches().should.equal(1);
+      var b = ghosture.start(1, 1).run();
+      ghosture.numTouches().should.equal(2);
+      a.end().run();
+      b.cancel().run();
+      ghosture.numTouches().should.equal(0);
+    });
+  });
+
+  describe('endTouches', function () {
+    it('should end all ongoing touches', function () {
+      ghosture.numTouches().should.equal(0);
+      ghosture.start(1, 1).run();
+      ghosture.endTouches();
+      ghosture.numTouches().should.equal(0);
+    });
   });
 });

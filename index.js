@@ -133,16 +133,19 @@ var Gesture = function (x, y) {
       sequence.push(finalCallback);
     }
 
-    // Execute the sequence recursively
-    if (sequence.length > 0) {
-      (function iterate(list, i) {
-        list[i](function next() {
-          if (i + 1 < list.length) {
-            iterate(list, i + 1);
-          }
+    // Execute the function sequence recursively.
+    // Remove the function to be executed from the sequence before
+    // its execution. This is a precaution for the situation where
+    // a fn in the sequence would add new fns to the sequence.
+    (function consume(list) {
+      if (list.length > 0) {
+        list.shift()(function next() {
+          consume(list);
         });
-      }(sequence, 0));
-    }
+      }
+    }(sequence));
+
+    return this;
   };
 
   this.then = function (fn) {
@@ -159,4 +162,12 @@ var Gesture = function (x, y) {
 
 exports.start = function (x, y) {
   return new Gesture(x, y);
+};
+
+exports.numTouches = function () {
+  return emit.numTouches();
+};
+
+exports.endTouches = function () {
+  return emit.endTouches();
 };

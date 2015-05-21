@@ -8,13 +8,15 @@
     <div id="sandbox"></div>
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>
-    <script src="../node_modules/chai/chai.js"></script>
+    <script src="../node_modules/should/should.js"></script>
     <script src="../node_modules/jquery/dist/jquery.js"></script>
-    <script src="../node_modules/chai-jquery/chai-jquery.js"></script>
     <script>
       mocha.ui('bdd');
       mocha.reporter('html');
-      var should = chai.should(); // 'var' important, otherwise RangeError
+      // Remember
+      //   window.should.be.equal(windows) // ok
+      //   should.be.equal(windows) // ok
+      //   Should(false).not.be.ok
     </script>
     <script src="../ghosture.js"></script>
     <!-- We must include ghosture before hammer to fake touch support -->
