@@ -1,7 +1,14 @@
 var GTouchEmitter = require('./lib/GTouchEmitter');
 var touchSupport = require('./lib/touchSupport');
+var version = require('./lib/version');
 var tween = require('component-tween');
 var raf = require('raf'); // requestAnimationFrame polyfill
+
+var ChainingError = function (throwerFnName) {
+  this.name = 'ChainingError';
+  this.message = throwerFnName + ' is probably wrongly chained.';
+};
+ChainingError.prototype = new Error();
 
 var emit = new GTouchEmitter();
 
@@ -23,13 +30,24 @@ var Gesture = function (x, y) {
   // Defined during the first function execution (start)
   var id;
 
+  // A gesture can only ended or cancelled once.
+  var finished = false;
+
   sequence.push(function start(next) {
     // emit touchstart at x, y
     id = emit.touchstart(x, y);
+    if (id === null) {
+      throw new Error('Point (' + x + ', ' + y + ') is outside the document');
+    }
     next();
   });
 
   this.cancel = function () {
+    if (finished) {
+      throw new ChainingError('cancel');
+    } // else
+    finished = true;
+
     sequence.push(function cancel(next) {
       emit.touchcancel(id, x, y);
       next();
@@ -38,6 +56,11 @@ var Gesture = function (x, y) {
   };
 
   this.end = function () {
+    if (finished) {
+      throw new ChainingError('end');
+    } // else
+    finished = true;
+
     sequence.push(function end(next) {
       emit.touchend(id, x, y);
       next();
@@ -46,6 +69,10 @@ var Gesture = function (x, y) {
   };
 
   this.hold = function (arg) {
+    if (finished) {
+      throw new ChainingError('hold');
+    } // else
+
     var delay;
 
     // Argument validation
@@ -71,7 +98,13 @@ var Gesture = function (x, y) {
     return this;
   };
 
+  /**
+   * @throws ChainingError
+   */
   this.moveBy = function (arg1, arg2, arg3, arg4) {
+    if (finished) {
+      throw new ChainingError('moveBy');
+    } // else
 
     var dx;
     var dy;
@@ -111,6 +144,9 @@ var Gesture = function (x, y) {
     return this;
   };
 
+  /**
+   * @throws ChainingError
+   */
   this.moveTo = function (arg1, arg2, arg3, arg4) {
 
     var tx;
@@ -171,3 +207,5 @@ exports.numTouches = function () {
 exports.endTouches = function () {
   return emit.endTouches();
 };
+
+exports.version = version;

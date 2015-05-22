@@ -8,7 +8,7 @@ describe('ghosture', function () {
   });
 
   it('should have api', function () {
-    ghosture.should.have.keys('start', 'numTouches', 'endTouches');
+    ghosture.should.have.keys('start', 'numTouches', 'endTouches', 'version');
   });
 
   describe('start', function () {
@@ -94,7 +94,7 @@ describe('ghosture', function () {
         .end(function () {
           // Is not run. '.then' should be used.
           i += 1;
-          should(true).not.be.ok;
+          Should(true).not.be.ok;
         })
         .run(function () {
           i.should.equal(2);
@@ -103,10 +103,78 @@ describe('ghosture', function () {
       (typeof result).should.equal('object');
     });
 
+    it('should allow parallelism', function (done) {
+      var a = false;
+      var b = false;
+      var c = false;
+      var twice = function () {
+        if (!c) {
+          c = true;
+        } else {
+          done();
+        }
+      };
+
+      ghosture.start(100, 100)
+        .moveBy(100, 100, 50)
+        .then(function () {
+          a = true;
+        })
+        .moveBy(100, 100, 50)
+        .end()
+        .run(function () {
+          b.should.equal(true);
+          twice();
+        });
+
+      ghosture.start(200, 100)
+        .moveBy(100, 100, 50)
+        .then(function () {
+          b = true;
+        })
+        .moveBy(100, 100, 50)
+        .end()
+        .run(function () {
+          a.should.equal(true);
+          twice();
+        });
+    });
+
+    it('should not allow negative coordinates', function () {
+      (function () {
+        ghosture.start(-100, -100)
+          .moveBy(-100, -100, 100)
+          .end()
+          .run();
+      }).should.throw(/outside/);
+    });
+  });
+
+  describe('end', function () {
+    it('should be called after moves', function () {
+      (function () {
+        ghosture.start(1, 1)
+          .end()
+          .moveTo(10, 10, 50)
+          .run();
+      }).should.throw(/wrongly chained/);
+    });
+
+    it('should be called only once', function () {
+      (function () {
+        ghosture.start(1, 1)
+          .moveTo(10, 10, 50)
+          .end()
+          .then(function () {
+            // Something between just for precaution.
+          })
+          .end()
+          .run();
+      }).should.throw(/wrongly chained/);
+    });
   });
 
   describe('numTouches', function () {
-
     it('should count number of ongoing touches', function () {
       ghosture.numTouches().should.equal(0);
       var a = ghosture.start(1, 1).run();
