@@ -126,6 +126,8 @@ var Gesture = function (x, y) {
         .duration(duration);
 
       tw.update(function (o) {
+        x = o.x; // Update the knowledge where the pointer is.
+        y = o.y;
         emit.touchmove(id, o.x, o.y);
       });
 

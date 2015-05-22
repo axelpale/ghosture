@@ -62,6 +62,46 @@ describe('ghosture', function () {
         .run();
     });
 
+    it('& 3x moveBy should emit correctly positioned events', function (done) {
+
+      var x, y;
+      var mc = new Hammer(el);
+      mc.on('hammer.input', function (ev) {
+        ev.should.have.property('srcEvent');
+        ev.srcEvent.should.have.property('changedTouches');
+        var touch = ev.srcEvent.changedTouches[0];
+        x = touch.clientX;
+        y = touch.clientY;
+      });
+
+      ghosture.start(10, 10)
+        .then(function () {
+          x.should.equal(10, 'x before 1st move');
+          y.should.equal(10, 'y before 1st move');
+        })
+        .moveBy(40, 0, 50) // to 50, 10
+        .then(function () {
+          x.should.equal(50, 'x after 1st move');
+          y.should.equal(10, 'y after 1st move');
+        })
+        .moveBy(0, 40, 50) // to 50, 50
+        .then(function () {
+          x.should.equal(50, 'x after 2nd move');
+          y.should.equal(50, 'y after 2nd move');
+        })
+        .moveBy(-40, -40, 50) // to 10, 10
+        .then(function () {
+          x.should.equal(10, 'x after 3rd move');
+          y.should.equal(10, 'y after 3rd move');
+        })
+        .end()
+        .run(function () {
+          x.should.equal(10);
+          y.should.equal(10);
+          done();
+        });
+    });
+
     it('& moveTo should cause multiple pans', function (done) {
       this.timeout(150);
 
