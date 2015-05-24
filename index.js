@@ -2,6 +2,7 @@ var GTouchEmitter = require('./lib/GTouchEmitter');
 var touchSupport = require('./lib/touchSupport');
 var version = require('./lib/version');
 var tween = require('component-tween');
+var cssTime = require('css-time');
 var raf = require('raf'); // requestAnimationFrame polyfill
 
 var ChainingError = function (throwerFnName) {
@@ -9,6 +10,12 @@ var ChainingError = function (throwerFnName) {
   this.message = throwerFnName + ' is probably wrongly chained.';
 };
 ChainingError.prototype = new Error();
+
+var ParameterError = function (paramName, value) {
+  this.name = 'ParameterError';
+  this.message = 'Invalid ' + paramName + ' value: ' + value;
+};
+ParameterError.prototype = new Error();
 
 var emit = new GTouchEmitter();
 
@@ -68,6 +75,9 @@ var Gesture = function (x, y) {
     return this;
   };
 
+  /**
+   * @param {number|object} duration
+   */
   this.hold = function (arg) {
     if (finished) {
       throw new ChainingError('hold');
@@ -99,29 +109,33 @@ var Gesture = function (x, y) {
   };
 
   /**
+   * @param {number} dx
+   * @param {number} dy
+   * @param {string} [duration='50ms'] - Duration in millisecs or CSS time string.
+   * @param {string} [easing='linear']
    * @throws ChainingError
    */
-  this.moveBy = function (arg1, arg2, arg3, arg4) {
+  this.moveBy = function (dx, dy, duration, easing) {
     if (finished) {
       throw new ChainingError('moveBy');
     } // else
 
-    var dx;
-    var dy;
-    var duration;
-    var ease;
-
     // Parameter handling here
-    dx = arg1;
-    dy = arg2;
-    duration = arg3;
-    ease = (typeof arg4 === 'undefined') ? 'linear' : arg4;
+    if (typeof duration === 'undefined') { duration = '50ms'; }
+    if (typeof easing === 'undefined') { easing = 'linear'; }
+    if (typeof duration === 'string') {
+      try {
+        duration = cssTime.from(duration);
+      } catch (err) {
+        throw new ParameterError('duration', duration);
+      }
+    }
 
     sequence.push(function moveBy(next) {
       var animate;
 
       var tw = tween({x: x, y: y})
-        .ease(ease)
+        .ease(easing)
         .to({x: x + dx, y: y + dy})
         .duration(duration);
 
@@ -147,22 +161,14 @@ var Gesture = function (x, y) {
   };
 
   /**
+   * @param {number} dx
+   * @param {number} dy
+   * @param {string} [duration='50ms'] - Duration in millisecs or CSS time string.
+   * @param {string} [easing='linear']
    * @throws ChainingError
    */
-  this.moveTo = function (arg1, arg2, arg3, arg4) {
-
-    var tx;
-    var ty;
-    var duration;
-    var ease;
-
-    // Parameter handling here
-    tx = arg1;
-    ty = arg2;
-    duration = arg3;
-    ease = (typeof arg4 === 'undefined') ? 'linear' : arg4;
-
-    return this.moveBy(tx - x, ty - y, duration, ease);
+  this.moveTo = function (tx, ty, duration, easing) {
+    return this.moveBy(tx - x, ty - y, duration, easing);
   };
 
   this.run = function (finalCallback) {

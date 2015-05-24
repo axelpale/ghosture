@@ -20,7 +20,8 @@
   "dependencies": {
     "seqid": "^1.0.1",
     "raf": "^2.0.4",
-    "component-tween": "^1.2.0"
+    "component-tween": "^1.2.0",
+    "css-time": "^0.1.11"
   },
   "devDependencies": {
     "jshint": "latest",

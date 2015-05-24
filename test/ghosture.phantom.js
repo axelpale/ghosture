@@ -2,6 +2,14 @@
 
 describe('ghosture', function () {
 
+  var el;
+
+  beforeEach(function () {
+    $('#sandbox').empty();
+    $('#sandbox').append('<img src="assets/lego.png" width="256" height="256">');
+    el = $('#sandbox img')[0];
+  });
+
   afterEach(function () {
     // Without this one failed test might make all remaining tests to fail.
     ghosture.endTouches();
@@ -13,14 +21,6 @@ describe('ghosture', function () {
 
   describe('start', function () {
 
-    var el;
-
-    beforeEach(function () {
-      $('#sandbox').empty();
-      $('#sandbox').append('<img src="assets/lego.png" width="256" height="256">');
-      el = $('#sandbox img')[0];
-    });
-
     it('& end should cause tap', function (done) {
       var mc = new Hammer(el);
       mc.on('tap', function () {
@@ -29,94 +29,6 @@ describe('ghosture', function () {
 
       ghosture.start(50, 50)
         .hold(20)
-        .end()
-        .run();
-    });
-
-    it('& moveBy should cause panend', function (done) {
-      var mc = new Hammer(el);
-      mc.on('panend', function () {
-        done();
-      });
-
-      ghosture.start(100, 100)
-        .moveBy(300, 0, 100)
-        .end()
-        .run();
-    });
-
-    it('& moveBy should cause multiple pans', function (done) {
-      var numPans = 0;
-      var mc = new Hammer(el);
-      mc.on('pan', function () {
-        numPans += 1;
-      });
-      mc.on('panend', function () {
-        numPans.should.be.above(5);
-        done();
-      });
-
-      ghosture.start(100, 100)
-        .moveBy(300, 0, 100)
-        .end()
-        .run();
-    });
-
-    it('& 3x moveBy should emit correctly positioned events', function (done) {
-
-      var x, y;
-      var mc = new Hammer(el);
-      mc.on('hammer.input', function (ev) {
-        ev.should.have.property('srcEvent');
-        ev.srcEvent.should.have.property('changedTouches');
-        var touch = ev.srcEvent.changedTouches[0];
-        x = touch.clientX;
-        y = touch.clientY;
-      });
-
-      ghosture.start(10, 10)
-        .then(function () {
-          x.should.equal(10, 'x before 1st move');
-          y.should.equal(10, 'y before 1st move');
-        })
-        .moveBy(40, 0, 50) // to 50, 10
-        .then(function () {
-          x.should.equal(50, 'x after 1st move');
-          y.should.equal(10, 'y after 1st move');
-        })
-        .moveBy(0, 40, 50) // to 50, 50
-        .then(function () {
-          x.should.equal(50, 'x after 2nd move');
-          y.should.equal(50, 'y after 2nd move');
-        })
-        .moveBy(-40, -40, 50) // to 10, 10
-        .then(function () {
-          x.should.equal(10, 'x after 3rd move');
-          y.should.equal(10, 'y after 3rd move');
-        })
-        .end()
-        .run(function () {
-          x.should.equal(10);
-          y.should.equal(10);
-          done();
-        });
-    });
-
-    it('& moveTo should cause multiple pans', function (done) {
-      this.timeout(150);
-
-      var numPans = 0;
-      var mc = new Hammer(el);
-      mc.on('pan', function () {
-        numPans += 1;
-      });
-      mc.on('panend', function () {
-        numPans.should.be.above(5);
-        done();
-      });
-
-      ghosture.start(100, 100)
-        .moveTo(500, 600, 100)
         .end()
         .run();
     });
@@ -187,6 +99,114 @@ describe('ghosture', function () {
           .end()
           .run();
       }).should.throw(/outside/);
+    });
+  });
+
+  describe('moveBy', function () {
+    it('should cause panend', function (done) {
+      var mc = new Hammer(el);
+      mc.on('panend', function () {
+        done();
+      });
+
+      ghosture.start(100, 100)
+        .moveBy(300, 0, 100)
+        .end()
+        .run();
+    });
+
+    it('should cause multiple pans', function (done) {
+      var numPans = 0;
+      var mc = new Hammer(el);
+      mc.on('pan', function () {
+        numPans += 1;
+      });
+      mc.on('panend', function () {
+        numPans.should.be.above(5);
+        done();
+      });
+
+      ghosture.start(100, 100)
+        .moveBy(300, 0, 100)
+        .end()
+        .run();
+    });
+
+    it('should emit correctly positioned events', function (done) {
+
+      var x, y;
+      var mc = new Hammer(el);
+      mc.on('hammer.input', function (ev) {
+        ev.should.have.property('srcEvent');
+        ev.srcEvent.should.have.property('changedTouches');
+        var touch = ev.srcEvent.changedTouches[0];
+        x = touch.clientX;
+        y = touch.clientY;
+      });
+
+      ghosture.start(10, 10)
+        .then(function () {
+          x.should.equal(10, 'x before 1st move');
+          y.should.equal(10, 'y before 1st move');
+        })
+        .moveBy(40, 0, 50) // to 50, 10
+        .then(function () {
+          x.should.equal(50, 'x after 1st move');
+          y.should.equal(10, 'y after 1st move');
+        })
+        .moveBy(0, 40, 50) // to 50, 50
+        .then(function () {
+          x.should.equal(50, 'x after 2nd move');
+          y.should.equal(50, 'y after 2nd move');
+        })
+        .moveBy(-40, -40, 50) // to 10, 10
+        .then(function () {
+          x.should.equal(10, 'x after 3rd move');
+          y.should.equal(10, 'y after 3rd move');
+        })
+        .end()
+        .run(function () {
+          x.should.equal(10);
+          y.should.equal(10);
+          done();
+        });
+    });
+
+    it('should allow css time', function (done) {
+      var after60ms = false;
+
+      ghosture.start(100, 100)
+        .moveBy(100, 100, '100ms')
+        .end()
+        .run(function () {
+          after60ms.should.equal(true);
+          done();
+        });
+
+      setTimeout(function () {
+        after60ms = true;
+      }, 80);
+    });
+  });
+
+  describe('moveTo', function () {
+    it('should cause multiple pans', function (done) {
+      this.timeout(150);
+
+      var numPans = 0;
+      var mc = new Hammer(el);
+      mc.on('pan', function () {
+        numPans += 1;
+      });
+      mc.on('panend', function () {
+        numPans.should.be.above(5);
+        done();
+      });
+
+      ghosture.start(100, 100)
+        .moveTo(500, 600, 100)
+        .end()
+        .run();
     });
   });
 

@@ -4,6 +4,14 @@ Simulate touch gestures in your unit tests
 
 # Usage (Not yet)
 
+    ghosture.start({x: 100, y: 50})
+      .moveTo({x: 200, y: 50, duration: 500})
+      .hold({duration: 200}).end().run();
+
+    ghosture.start(100, 50)
+      .moveTo(200, 50, '500ms')
+      .hold('200ms').end().run();
+
     ghosture.start(100, 50)
       .during(500).moveTo(200, 50)
       .hold(200).end().run();
