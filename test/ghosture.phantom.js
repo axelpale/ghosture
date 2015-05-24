@@ -254,5 +254,9 @@ describe('ghosture', function () {
       ghosture.endTouches();
       ghosture.numTouches().should.equal(0);
     });
+
+    // TODO moveBys after endTouches?
+
+    // TODO hold duration in css time format
   });
 });

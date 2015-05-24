@@ -1,52 +1,99 @@
 # ghosture.js
 
-Simulate touch gestures in your unit tests
+Simulate and automate touch gestures in your user interface unit tests. Designed to be used especially with [PhantomJS](http://phantomjs.org/).
 
-# Usage (Not yet)
 
-    ghosture.start({x: 100, y: 50})
-      .moveTo({x: 200, y: 50, duration: 500})
-      .hold({duration: 200}).end().run();
 
-    ghosture.start(100, 50)
-      .moveTo(200, 50, '500ms')
-      .hold('200ms').end().run();
+# Install
 
-    ghosture.start(100, 50)
-      .during(500).moveTo(200, 50)
-      .hold(200).end().run();
+    npm install ghosture
 
-    ghosture.start({x: 100, y: 50})
-      .moveTo({x: 200, y: 50, duration: 200, ease: 'in-out'})
-      .hold({duration: 200}).end().run();
 
-    ghosture.start(100, 50)
-      .moveBy(100, 0, 200)
-      .hold(200).end().run();
 
-    var gest = ghosture(100, 50)
-      .during(200)
-      .moveBy(100, 0)
-      .then(function () {
-        console.log('First move');
-      })
-      .during(100, 'in-out') // ms + easing
-      .moveBy(100, 100)
-      .then(function(x, y) {
-        console.log(x, y); // 300 150
-      })
-      .end();
-    gest.run();
+# Usage
 
-    ghosture.tap(100, 200).run();
+    // "swipe left"
+    ghosture.start(200, 50)
+      .moveTo(100, 50, '500ms')
+      .end()
+      .run();
 
-    "ghosture.start() === ghosture()" // convenience?
-    ".wait === .hold" // for readability
-    ".end !== .run" // for semantics?
+    // "tap"
+    ghosture.start(50, 50)
+      .hold('50ms')
+      .end()
+      .run();
+
+    // execute functions between
+    ghosture.start(50, 50)
+      .then(function () { console.log('started'); })
+      .moveBy(50, 50)
+      .then(function () { console.log('moved to (100, 100)'); })
+
+
+
+# API
+
+
+## ghosture
+
+### ghosture.start(x, y)
+
+Creates and initiates a new `Gesture` instance. Does not emit a `touchstart` event until `run()` is called.
+
+    var g = ghosture.start(100, 20);
+
+### ghosture.endTouches()
+
+End all ongoing ghosture-created touches.
+
+### ghosture.numTouches()
+
+Number of ongoing ghosture-created touches.
+
+
+## Gesture
+
+### g.cancel()
+
+Cancel the gesture by emitting a `touchcancel`. The gesture cannot be restarted.
+
+### g.end()
+
+End the gesture by emitting a `touchend`. The gesture cannot be restarted.
+
+### g.hold(duration)
+
+Keep the gesture still. Duration is a [CSS time string](https://developer.mozilla.org/en/docs/Web/CSS/time), such as '0.5s' or '500ms'.
+
+### g.moveBy(dx, dy, [duration='50ms'], [easing='linear'])
+
+Move the gesture in a relative manner. For available easing functions, see [component/ease](https://github.com/component/ease).
+
+### g.moveTo(x, y, [duration='50ms'], [easing='linear'])
+
+Move the gesture to absolute [clientX and clientY](https://developer.mozilla.org/en-US/docs/Web/API/Touch) coordinates.
+
+### g.run([fn])
+
+Run the gesture and execute optional `fn` function when finished.
+
+### g.then(fn)
+
+Execute an arbitrary `fn` function during the gesture.
+
+
+
+# Future plans
+
+## Logo
+
+## Example apps
+
+## Premade gestures (Not yet implemented)
 
     var tap = ghosture.tap(100, 200);
     tap.run();
-
     ghosture.doubletap(100, 50).run();
     ghosture.tripletap(100, 50).run();
     ghosture.doubletap({
@@ -55,17 +102,7 @@ Simulate touch gestures in your unit tests
       interval: 10 // default
     }).run();
 
-    ghosture.pinch({
-      pointers: 3,
-      centerX: 100,
-      centerY: 50,
-      radiusStart: 30,
-      radiusEnd: 60,
-      angleStartRad: 0,
-      angleEndDeg: 30 // alternative
-    });
-
-    ".pinch === .rotate"
+## Multitouch gestures (Not yet implemented)
 
     ghosture.transform({
       pointers: 2,
@@ -82,7 +119,7 @@ Simulate touch gestures in your unit tests
     }).run();
 
 
-# Recording (Not yet)
+## Recording (Not yet implemented)
 
 Train your ghost fingers by tracking a real touch gesture.
 
@@ -95,7 +132,7 @@ Records the gesture from the `touchstart` of the first finger touching the docum
 
 The default element to track is `document.body`. You can track specific element by `.recordNext(myElement)`.
 
-## Replay
+### Replay (Not yet implemented)
 
 Play the recorded gesture in your unit tests by:
 
@@ -106,7 +143,7 @@ or
 
     ghosture.start(gesture).end();
 
-## Format
+### Format (Not yet implemented)
 
 Example of two events:
 
@@ -136,3 +173,15 @@ The format in the Backus-Naur notation for geeks:
 
 Additional constraints:
 - Events must be ordered by time i.e. in ascending order by elapsed-time-ms.
+
+
+
+# Versioning
+
+[Semantic Versioning 2.0.0](http://semver.org/)
+
+
+
+# License
+
+[MIT License](../blob/master/LICENSE)
