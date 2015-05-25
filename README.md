@@ -4,13 +4,13 @@ Simulate and automate touch gestures in your user interface unit tests. Designed
 
 
 
-# Install
+## Install
 
     npm install ghosture
 
 
 
-# Usage
+## Usage
 
     // "swipe left"
     ghosture.start(200, 50)
@@ -29,68 +29,96 @@ Simulate and automate touch gestures in your user interface unit tests. Designed
       .then(function () { console.log('started'); })
       .moveBy(50, 50)
       .then(function () { console.log('moved to (100, 100)'); })
+      .end()
+      .then(function () { console.log('ended')})
+      .run(function () {
+        console.log('finally');
+      });
+
+    // store gesture to a variable before running
+    var pan = ghosture.start(200, 200)
+      .moveBy(-100, -100, '0.2s', 'in-out-sine')
+      .end();
+    ...
+    pan.run();
+    ...
+    pan.run(); // reuse (Not yet implemented)
+
+    // run in pieces
+    var g = ghosture.start(200, 200).run();
+    g.moveBy(-100, -100, '0.2s').run();
+    g.end().run();
 
 
+## API
 
-# API
 
+### ghosture
 
-## ghosture
-
-### ghosture.start(x, y)
+#### ghosture.start(x, y)
 
 Creates and initiates a new `Gesture` instance. Does not emit a `touchstart` event until `run()` is called.
 
     var g = ghosture.start(100, 20);
 
-### ghosture.endTouches()
+#### ghosture.endTouches()
 
 End all ongoing ghosture-created touches.
 
-### ghosture.numTouches()
+#### ghosture.numTouches()
 
 Number of ongoing ghosture-created touches.
 
 
-## Gesture
+### Gesture
 
-### g.cancel()
+#### g.cancel()
 
 Cancel the gesture by emitting a `touchcancel`. The gesture cannot be restarted.
 
-### g.end()
+#### g.end()
 
 End the gesture by emitting a `touchend`. The gesture cannot be restarted.
 
-### g.hold(duration)
+#### g.hold(duration)
 
 Keep the gesture still. Duration is a [CSS time string](https://developer.mozilla.org/en/docs/Web/CSS/time), such as '0.5s' or '500ms'.
 
-### g.moveBy(dx, dy, [duration='50ms'], [easing='linear'])
+Throws error if invalid duration is given.
+
+#### g.moveBy(dx, dy, [duration='50ms'], [easing='linear'])
 
 Move the gesture in a relative manner. For available easing functions, see [component/ease](https://github.com/component/ease).
 
-### g.moveTo(x, y, [duration='50ms'], [easing='linear'])
+Throws error if invalid duration is given.
+
+#### g.moveTo(x, y, [duration='50ms'], [easing='linear'])
 
 Move the gesture to absolute [clientX and clientY](https://developer.mozilla.org/en-US/docs/Web/API/Touch) coordinates.
 
-### g.run([fn])
+Throws error if invalid duration is given.
+
+#### g.run([fn])
 
 Run the gesture and execute optional `fn` function when finished.
 
-### g.then(fn)
+#### g.then(fn)
 
 Execute an arbitrary `fn` function during the gesture.
 
 
 
-# Future plans
+## Future plans
 
-## Logo
+### Logo
 
-## Example apps
+### Example apps
 
-## Premade gestures (Not yet implemented)
+### Reuse
+
+
+
+### Premade gestures (Not yet implemented)
 
     var tap = ghosture.tap(100, 200);
     tap.run();
@@ -102,7 +130,7 @@ Execute an arbitrary `fn` function during the gesture.
       interval: 10 // default
     }).run();
 
-## Multitouch gestures (Not yet implemented)
+### Multitouch gestures (Not yet implemented)
 
     ghosture.transform({
       pointers: 2,
@@ -119,7 +147,7 @@ Execute an arbitrary `fn` function during the gesture.
     }).run();
 
 
-## Recording (Not yet implemented)
+### Recording (Not yet implemented)
 
 Train your ghost fingers by tracking a real touch gesture.
 
@@ -132,7 +160,7 @@ Records the gesture from the `touchstart` of the first finger touching the docum
 
 The default element to track is `document.body`. You can track specific element by `.recordNext(myElement)`.
 
-### Replay (Not yet implemented)
+#### Replay (Not yet implemented)
 
 Play the recorded gesture in your unit tests by:
 
@@ -143,7 +171,7 @@ or
 
     ghosture.start(gesture).end();
 
-### Format (Not yet implemented)
+#### Format (Not yet implemented)
 
 Example of two events:
 
@@ -176,12 +204,12 @@ Additional constraints:
 
 
 
-# Versioning
+## Versioning
 
 [Semantic Versioning 2.0.0](http://semver.org/)
 
 
 
-# License
+## License
 
 [MIT License](../blob/master/LICENSE)
