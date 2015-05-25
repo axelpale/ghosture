@@ -28,7 +28,6 @@ describe('ghosture', function () {
       });
 
       ghosture.start(50, 50)
-        .hold(20)
         .end()
         .run();
     });
@@ -173,18 +172,18 @@ describe('ghosture', function () {
     });
 
     it('should allow css time', function (done) {
-      var after60ms = false;
+      var after80ms = false;
 
       ghosture.start(100, 100)
         .moveBy(100, 100, '100ms')
         .end()
         .run(function () {
-          after60ms.should.equal(true);
+          after80ms.should.equal(true);
           done();
         });
 
       setTimeout(function () {
-        after60ms = true;
+        after80ms = true;
       }, 80);
     });
   });
@@ -234,6 +233,41 @@ describe('ghosture', function () {
     });
   });
 
+  describe('hold', function () {
+    it('should postpone end', function (done) {
+      var flag = false;
+
+      var mc = new Hammer(el);
+      mc.on('tap', function () {
+        flag.should.equal(true);
+        done();
+      });
+
+      ghosture.start(50, 50)
+        .hold(80)
+        .end()
+        .run();
+
+      setTimeout(function () {
+        flag = true;
+      }, 60);
+    });
+
+    it('should allow css time', function (done) {
+      var flag = false;
+      ghosture.start(50, 50)
+        .hold('80ms')
+        .end()
+        .run(function () {
+          flag.should.equal(true);
+          done();
+        });
+      setTimeout(function () {
+        flag = true;
+      }, 60);
+    });
+  });
+
   describe('numTouches', function () {
     it('should count number of ongoing touches', function () {
       ghosture.numTouches().should.equal(0);
@@ -256,7 +290,5 @@ describe('ghosture', function () {
     });
 
     // TODO moveBys after endTouches?
-
-    // TODO hold duration in css time format
   });
 });

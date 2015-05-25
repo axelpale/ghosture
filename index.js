@@ -27,6 +27,7 @@ if (!touchSupport.hasTouchSupport()) {
 
 // Default callback
 var noop = function () {};
+var DEFAULT_DURATION = 50;
 
 var Gesture = function (x, y) {
 
@@ -76,9 +77,9 @@ var Gesture = function (x, y) {
   };
 
   /**
-   * @param {number|object} duration
+   * @param {number|string} duration
    */
-  this.hold = function (arg) {
+  this.hold = function (duration) {
     if (finished) {
       throw new ChainingError('hold');
     } // else
@@ -86,19 +87,18 @@ var Gesture = function (x, y) {
     var delay;
 
     // Argument validation
-    if (typeof arg === 'number') {
-      delay = arg;
-    } else if (typeof arg === 'object') {
-      if (arg.hasOwnProperty('duration') &&
-          typeof arg.duration === 'number') {
-        delay = arg.duration;
-      } else {
-        throw new Error('Invalid argument');
+    if (typeof duration === 'number') {
+      delay = duration;
+    } else if (typeof duration === 'string') {
+      try {
+        delay = cssTime.from(duration);
+      } catch (err) {
+        throw new ParameterError('duration', duration);
       }
-    } else if (typeof arg === 'undefined'){
-      delay = 100; // Default
+    } else if (typeof duration === 'undefined'){
+      delay = DEFAULT_DURATION;
     } else {
-      throw new Error('Invalid argument');
+      throw new ParameterError('duration', duration);
     }
 
     sequence.push(function hold(then) {
@@ -121,7 +121,7 @@ var Gesture = function (x, y) {
     } // else
 
     // Parameter handling here
-    if (typeof duration === 'undefined') { duration = '50ms'; }
+    if (typeof duration === 'undefined') { duration = DEFAULT_DURATION; }
     if (typeof easing === 'undefined') { easing = 'linear'; }
     if (typeof duration === 'string') {
       try {

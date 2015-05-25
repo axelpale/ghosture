@@ -1,6 +1,6 @@
 {
   "name": "ghosture",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Simulate touch gestures in your unit tests.",
   "keywords": [
     "testing",
